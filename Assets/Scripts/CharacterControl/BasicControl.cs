@@ -13,17 +13,17 @@ public class BasicControl : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;    // Select your "Ground" layer here
 
-    private Rigidbody2D _rb;
+    private Rigidbody _rb;
     private float _currentMoveSpeed;
-    private SpriteRenderer _sr;
+    private MeshRenderer _sr;
     private bool _isDead = false;
     private bool _isGrounded;
 
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody>();
         if (transform.childCount > 0)
-            _sr = transform.GetChild(0).GetComponent<SpriteRenderer>();
+            _sr = transform.GetChild(0).GetComponent<MeshRenderer>();
             
         _currentMoveSpeed = baseMoveSpeed;
     }
@@ -39,10 +39,10 @@ public class BasicControl : MonoBehaviour
         HandleJump();
         
         float h = Input.GetAxis("Horizontal");
-        if (h != 0 && _sr != null)
-        {
-            _sr.flipX = h > 0; // Note: Depending on sprite, this might need to be h < 0
-        }
+        //if (h != 0 && _sr != null)
+        //{
+        //    _sr.flipX = h > 0; // Note: Depending on sprite, this might need to be h < 0
+        //}
     }
 
     void CheckGround()
@@ -62,11 +62,19 @@ public class BasicControl : MonoBehaviour
 
     void HandleMovement()
     {
-        // Removed the specific KeyCode check to allow Joystick/Arrow support automatically
-        float h = Input.GetAxis("Horizontal");
-        _rb.velocity = new Vector2(h * _currentMoveSpeed, _rb.velocity.y);
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        {
+            float h = Input.GetAxis("Horizontal");
+
+            // 使用当前实际移动速度
+            _rb.velocity = new Vector2(h * baseMoveSpeed, _rb.velocity.y);
+        }
+        else
+        {
+            _rb.velocity = new Vector2(0, _rb.velocity.y);
+        }
     }
-    
+
     // Visualization for the Editor to see the ground check circle
     private void OnDrawGizmosSelected()
     {
