@@ -363,7 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 /Library
 /Temp
-/ProjectSettings
 /UserSettings
 /.vsconfig
 /2026Gamejam.sln
