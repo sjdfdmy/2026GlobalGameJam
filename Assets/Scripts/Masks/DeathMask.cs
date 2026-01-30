@@ -54,6 +54,7 @@ public class DeathMask : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L)&&cooldownTimer==0)
         {
             cooldownTimer = skillCooldown;
+            PlayerInfoManager.Instance.SkillCoolDown(skillCooldown);
             Resetskill();
             StartCoroutine(CastLaser());
         }

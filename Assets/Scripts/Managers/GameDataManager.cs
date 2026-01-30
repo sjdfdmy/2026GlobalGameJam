@@ -45,6 +45,9 @@ public class GameDataManager : MonoBehaviour
     [Header("玩家攻击间隔")]
     public float attackCooldown;
 
+    float savespeed;//记录当前速度
+    float savedamage;
+
     private void Awake()
     {
         if (instance == null)
@@ -61,7 +64,8 @@ public class GameDataManager : MonoBehaviour
 
     void Start()
     {
-        
+        savespeed=moveSpeed;
+        savedamage = damage;
     }
 
 
@@ -71,6 +75,28 @@ public class GameDataManager : MonoBehaviour
         {
             player.GetComponent<LineRenderer>().positionCount = 0;
             Destroy(player.GetComponent<LineRenderer>());
+        }
+
+        if(playerType == Type.wind)
+        {
+            WindMask wind = player.GetComponentInChildren<WindMask>();
+            bool strength = wind.strength;
+            if (strength)
+            {
+                moveSpeed = savespeed * 2f;
+                damage = savedamage*1.8f;
+            }
+            else
+            {
+                moveSpeed = savespeed * 1.2f;
+                damage = savedamage;
+            }
+            player.GetComponent<JumpController>().jumptime = 2;
+        }
+        else
+        {
+            moveSpeed = savespeed;
+            damage=savedamage;
         }
     }
 }

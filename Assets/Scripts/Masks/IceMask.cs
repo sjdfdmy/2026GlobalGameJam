@@ -46,7 +46,7 @@ public class IceMask : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.J)&&durationtime==0)
         {
             SimpleAttack();
         }
@@ -54,6 +54,7 @@ public class IceMask : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L)&&cooldownTimer==0)
         {
             cooldownTimer = skillCooldown;
+            PlayerInfoManager.Instance.SkillCoolDown(skillCooldown);
             Resetskill();
             StartCoroutine(CastLaser());
         }
@@ -141,6 +142,7 @@ public class IceMask : MonoBehaviour
                     hitThisInterval.Add(hit);
                     hit.GetComponent<Monster>()?.TakeDamage(damagePerSec * damageInterval);
                     hit.GetComponent<Monster>()?.SetEffect("Slow", 5);
+                    hit.GetComponent<Monster>()?.SetEffect("Freeze", 0.5f);
                 }
             }
 

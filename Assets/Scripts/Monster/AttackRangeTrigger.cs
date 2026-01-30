@@ -23,7 +23,7 @@ public class AttackRangeTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             transform.parent.GetComponent<Monster>()?.Attack(other,id);
-            enabled = false;
+            GetComponent<Collider2D>().enabled = false;
         }
     }
 

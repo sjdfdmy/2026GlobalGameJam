@@ -9,17 +9,31 @@ public class BasicControl : MonoBehaviour
     public Transform attackPoint;
     public float attackRange = 0.5f;
     public LayerMask enemyLayer;
+    public float attackslow = 0.5f;//攻击移速衰减
+    public float jumpattackslow = 0.7f;//跳跃攻击移速衰减
+    public bool attacking = false;
+    public SpriteRenderer render;//残影形象
 
     private Rigidbody2D _rb;
     private bool _isDead = false;
     private Animator _animator;
-    private List<Component> masks=new List<Component>(6);
+
+
+    private SpriteRenderer[] renderers;
+    private List<GameObject> ghosts = new List<GameObject>();
+    private bool isTrailing = false;   // 开关
+    private float spawnInterval;
+    private float fadeSpeed;
+    private Color ghostColor;
+
+    bool startironattack = false;
+    bool startwindattack = false;
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator=GetComponent<Animator>();
-        masks.Add(GetComponent<IronMask>());
+        renderers = GetComponentsInChildren<SpriteRenderer>();
     }
 
     private float _nextAttackTime = 0f;
@@ -28,17 +42,33 @@ public class BasicControl : MonoBehaviour
     {
         if (_isDead) return;
 
+        if (GetComponentInChildren<WindMask>() != null)
+        {
+            WindMask one = GetComponentInChildren<WindMask>();
+            spawnInterval = one.spawnInterval;
+            fadeSpeed = one.fadeSpeed;
+            ghostColor = one.ghostColor;
+        }
+
         HandleMovement();
 
         ChangeMask();
-
-        Attack();
 
         float h = Input.GetAxis("Horizontal");
 
         if (h != 0)
         {
             transform.localScale = new Vector3(Mathf.Sign(h) * Math.Abs(transform.localScale.x), transform.localScale.y, 1);
+        }
+
+        if (startironattack)
+        {
+            GetComponentInChildren<IronMask>()?.Attack();
+        }
+
+        if (startwindattack)
+        {
+            GetComponentInChildren<WindMask>()?.Attack();
         }
     }
 
@@ -52,10 +82,24 @@ public class BasicControl : MonoBehaviour
 
     void HandleMovement()
     {
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             float h = Input.GetAxis("Horizontal");
-
+            if (attacking&&GetComponent<JumpController>().isGrounded)
+            {
+                h *= attackslow;
+            }
+            else if (attacking&&!(GetComponent<JumpController>().isGrounded))
+            {
+                h *= jumpattackslow;
+            }
+            if (GameDataManager.Instance.playerType == GameDataManager.Type.wind)
+            {
+                if (transform.GetComponentInChildren<WindMask>().strength)
+                {
+                    h = Input.GetAxis("Horizontal");
+                }
+            }
             // 使用当前实际移动速度
             _rb.velocity = new Vector2(h * GameDataManager.Instance.moveSpeed, _rb.velocity.y);
             _animator.SetBool("Move", true);
@@ -77,30 +121,87 @@ public class BasicControl : MonoBehaviour
         }
     }
 
-    private void Attack()
+    public void EndAttack()
     {
-        if (Time.time >= _nextAttackTime)
+        attacking = false;
+    }
+
+    public void IronStartAttack()
+    {
+        startironattack = true;
+    }
+
+    public void WindStartAttack()
+    {
+        startwindattack=true;
+    }
+
+    public void IronEndAttack()
+    {
+        startironattack = false;
+    }
+
+    public void WindEndAttack()
+    {
+        startwindattack = false;
+    }
+    /* 外部调用：开始留残影 */
+    public void StartTrail()
+    {
+        if (isTrailing) return;
+        isTrailing = true;
+        InvokeRepeating(nameof(SpawnGhost), 0, spawnInterval);
+    }
+
+    /* 外部调用：停止留残影 */
+    public void StopTrail()
+    {
+        if (!isTrailing) return;
+        isTrailing = false;
+        CancelInvoke(nameof(SpawnGhost));
+        foreach (var g in ghosts) Destroy(g);
+        ghosts.Clear();
+    }
+
+    void SpawnGhost()
+    {
+        foreach (var sr in renderers)
         {
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                Debug.Log("Try to perform attack");
+            GameObject ghost = new GameObject("Ghost");
+            ghost.transform.position = render.transform.position;
+            ghost.transform.rotation = render.transform.rotation;
+            ghost.transform.localScale = new Vector3(render.transform.localScale.x*Mathf.Sign(transform.localScale.x),render.transform.localScale.y,render.transform.localScale.z);
 
-                Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayer);
+            SpriteRenderer gSr = ghost.AddComponent<SpriteRenderer>();
+            gSr.sprite = sr.sprite;
+            gSr.drawMode = sr.drawMode;
+            gSr.size = sr.size;       
+            gSr.color = ghostColor;
+            gSr.sortingOrder = sr.sortingOrder - 1;
 
-                foreach (Collider enemy in hitEnemies)
-                {
-                    Monster monster = enemy.GetComponent<Monster>();
-
-                    if (monster != null)
-                    {
-                        monster.TakeDamage(GameDataManager.Instance.damage);
-                    }
-                }
-
-                _nextAttackTime = Time.time + GameDataManager.Instance.attackCooldown;
-            }
+            ghosts.Add(ghost);
+            StartCoroutine(FadeAndDestroy(ghost, gSr));
         }
     }
+
+    IEnumerator FadeAndDestroy(GameObject ghost, SpriteRenderer gSr)
+    {
+        Color col = gSr.color;
+        while (col.a > 0)
+        {
+            if (gSr == null) yield break;
+            col.a -= GetComponentInChildren<WindMask>() .fadeSpeed * Time.deltaTime;
+            gSr.color = col;
+            yield return null;
+        }
+        if (ghost != null) Destroy(ghost);
+        ghosts.Remove(ghost);
+
+        Destroy(ghost);
+        ghosts.Remove(ghost);
+    }
+
+    void OnDestroy() => StopTrail();
 
     public void TakeDamage(float damage)
     {
