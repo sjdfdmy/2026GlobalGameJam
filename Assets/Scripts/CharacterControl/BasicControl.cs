@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,10 +9,10 @@ public class BasicControl : MonoBehaviour
     public Transform attackPoint;
     public float attackRange = 0.5f;
     public LayerMask enemyLayer;
-    public float attackslow = 0.5f;//¹¥»÷ÒÆËÙË¥¼õ
-    public float jumpattackslow = 0.7f;//ÌøÔ¾¹¥»÷ÒÆËÙË¥¼õ
+    public float attackslow = 0.5f;//æ”»å‡»ç§»é€Ÿè¡°å‡
+    public float jumpattackslow = 0.7f;//è·³è·ƒæ”»å‡»ç§»é€Ÿè¡°å‡
     public bool attacking = false;
-    public SpriteRenderer render;//²ĞÓ°ĞÎÏó
+    public SpriteRenderer render;//æ®‹å½±å½¢è±¡
 
     private Rigidbody2D _rb;
     private bool _isDead = false;
@@ -21,7 +21,7 @@ public class BasicControl : MonoBehaviour
 
     private SpriteRenderer[] renderers;
     private List<GameObject> ghosts = new List<GameObject>();
-    private bool isTrailing = false;   // ¿ª¹Ø
+    private bool isTrailing = false;   // å¼€å…³
     private float spawnInterval;
     private float fadeSpeed;
     private Color ghostColor;
@@ -100,7 +100,7 @@ public class BasicControl : MonoBehaviour
                     h = Input.GetAxis("Horizontal");
                 }
             }
-            // Ê¹ÓÃµ±Ç°Êµ¼ÊÒÆ¶¯ËÙ¶È
+            // ä½¿ç”¨å½“å‰å®é™…ç§»åŠ¨é€Ÿåº¦
             _rb.velocity = new Vector2(h * GameDataManager.Instance.moveSpeed, _rb.velocity.y);
             _animator.SetBool("Move", true);
         }
@@ -145,7 +145,7 @@ public class BasicControl : MonoBehaviour
     {
         startwindattack = false;
     }
-    /* Íâ²¿µ÷ÓÃ£º¿ªÊ¼Áô²ĞÓ° */
+    /* å¤–éƒ¨è°ƒç”¨ï¼šå¼€å§‹ç•™æ®‹å½± */
     public void StartTrail()
     {
         if (isTrailing) return;
@@ -153,7 +153,7 @@ public class BasicControl : MonoBehaviour
         InvokeRepeating(nameof(SpawnGhost), 0, spawnInterval);
     }
 
-    /* Íâ²¿µ÷ÓÃ£ºÍ£Ö¹Áô²ĞÓ° */
+    /* å¤–éƒ¨è°ƒç”¨ï¼šåœæ­¢ç•™æ®‹å½± */
     public void StopTrail()
     {
         if (!isTrailing) return;
