@@ -105,7 +105,7 @@ public class IronMask : MonoBehaviour
 
             var monster = col.GetComponent<Monster>();
             if (monster != null)
-                monster.TakeDamage(GameDataManager.Instance.damage, dashTime, new Vector2(dir * knockBack, UnityEngine.Random.Range(3,6)));
+                monster.TakeDamage(1, dashTime, new Vector2(dir * knockBack, UnityEngine.Random.Range(3,6)));
         }
 
         // 4. ”≤÷±£®∫Û“°£©

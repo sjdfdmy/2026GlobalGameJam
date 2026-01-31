@@ -23,6 +23,12 @@ public class PlayerInfoManager : MonoBehaviour
             return instance;
         }
     }
+    public GameObject infos;
+    public GameObject skilltips;
+    public UnityEngine.UI.Image playericon;
+    public TextMeshProUGUI maskname;
+    public TextMeshProUGUI attacknum;
+    public List<TextMeshProUGUI> tags=new List<TextMeshProUGUI>(4);
 
     public UnityEngine.UI.Image bloodback;
     public UnityEngine.UI.Image bloodbarquick;
@@ -31,9 +37,12 @@ public class PlayerInfoManager : MonoBehaviour
     [SerializeField] private float fadetime;
     public UnityEngine.UI.Image SkillIcon;
     public UnityEngine.UI.Image SkillCoolDownImage;
+    public List<Sprite> maskicons=new List<Sprite>(6);
     public List<Sprite> skillicons;
+    public List<Color> tagcolors;
 
-    float saveaimtime;
+
+    public float saveaimtime;
 
     private float maxsizex;
 
@@ -45,6 +54,13 @@ public class PlayerInfoManager : MonoBehaviour
         bloodtext.text = "100/100";
 
         SkillCoolDownImage.gameObject.SetActive(false);
+        playericon.sprite = null;
+        maskname.text="";
+        attacknum.text = "";
+        tags[0].text = "";
+        tags[1].text = "";
+        tags[2].text = "";
+        tags[3].text = " ";
     }
 
 
@@ -55,8 +71,85 @@ public class PlayerInfoManager : MonoBehaviour
         {
             UpdateBloodBar();
         }
-
+        if ((int)GameDataManager.Instance.playerType - 1>=0)
         SkillIcon.sprite=skillicons[(int)GameDataManager.Instance.playerType-1];
+
+        switch (GameDataManager.Instance.playerType)
+        {
+            case GameDataManager.Type.none:
+                playericon.sprite = null;
+                maskname.text = "";
+                attacknum.text = "";
+                tags[0].text = "";
+                tags[1].text = "";
+                tags[2].text = "";
+                tags[3].text = " ";
+                break;
+            case GameDataManager.Type.iron:
+                playericon.sprite = maskicons[0];
+                maskname.text = "<color=black>黑铁面具";
+                attacknum.text = "5";
+                tags[0].text = "近战";
+                tags[0].color = tagcolors[0];
+                tags[1].text = "击退";
+                tags[1].color = tagcolors[2];
+                tags[2].text = "";
+                tags[3].text = " ";
+                break;
+            case GameDataManager.Type.fire:
+                playericon.sprite = maskicons[1];
+                maskname.text = "<color=red>火焰面具";
+                attacknum.text = "5";
+                tags[0].text = "远程";
+                tags[0].color = tagcolors[0];
+                tags[1].text = "";
+                tags[2].text = "";
+                tags[3].text = " ";
+                break;
+            case GameDataManager.Type.ice:
+                playericon.sprite = maskicons[2];
+                maskname.text = "<color=blue>寒冰面具";
+                attacknum.text = "4";
+                tags[0].text = "远程";
+                tags[0].color = tagcolors[0];
+                tags[1].text = "控制";
+                tags[1].color = tagcolors[1];
+                tags[2].text = "";
+                tags[3].text = "";
+                break;
+            case GameDataManager.Type.wind:
+                playericon.sprite = maskicons[3];
+                maskname.text = "<color=green>疾风面具";
+                attacknum.text = "5";
+                tags[0].text = "近战";
+                tags[0].color = tagcolors[0];
+                tags[1].text = "";
+                tags[2].text = "";
+                tags[3].text = " ";
+                break;
+            case GameDataManager.Type.thunder:
+                playericon.sprite = maskicons[4];
+                maskname.text = "<color=yellow>雷霆面具";
+                attacknum.text = "3";
+                tags[0].text = "远程";
+                tags[0].color = tagcolors[0];
+                tags[1].text = "击退";
+                tags[1].color = tagcolors[2];
+                tags[2].text = "控制";
+                tags[2].color = tagcolors[1];
+                tags[3].text = "爆发";
+                tags[3].color = tagcolors[3];
+                break;
+            case GameDataManager.Type.death:
+                playericon.sprite = maskicons[5];
+                maskname.text = "<color=white>死亡面具";
+                attacknum.text = "";
+                tags[0].text = "";
+                tags[1].text = "";
+                tags[2].text = "";
+                tags[3].text = " ";
+                break;
+        }
     }
 
     public void SkillCoolDown(float time)

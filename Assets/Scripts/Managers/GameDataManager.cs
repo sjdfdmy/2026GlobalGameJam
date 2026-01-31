@@ -85,7 +85,7 @@ public class GameDataManager : MonoBehaviour
             bool strength = wind.strength;
             if (strength)
             {
-                moveSpeed = savespeed * 2f;
+                moveSpeed = savespeed * 1.8f;
                 damage = savedamage*1.5f;
                 attackCooldown = saveattackcooldown * 0.5f;
             }
@@ -102,5 +102,11 @@ public class GameDataManager : MonoBehaviour
             moveSpeed = savespeed;
             damage=savedamage;
         }
+    }
+
+    public void ChangeMask(int id)
+    {
+        playerType = (Type)id;
+        PlayerInfoManager.Instance.saveaimtime = 0;
     }
 }
